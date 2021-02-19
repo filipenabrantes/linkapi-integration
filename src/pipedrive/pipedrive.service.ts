@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { title } from 'process';
 import { makeRequest } from 'src/manager/make-request';
 import { IDeals } from './interfaces/deals.interface';
 

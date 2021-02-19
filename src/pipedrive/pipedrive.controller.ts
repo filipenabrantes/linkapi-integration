@@ -5,7 +5,6 @@ import { PipedriveService } from './pipedrive.service';
 export class PipedriveController {
   constructor(private pipedriveService: PipedriveService) { }
 
-  @Get()
   async getDeals(): Promise<any> {
     return this.pipedriveService.getDeals();
   }
