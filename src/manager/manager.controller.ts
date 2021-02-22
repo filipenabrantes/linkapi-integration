@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { BlingService } from 'src/bling/bling.service';
 import { IDeal } from 'src/pipedrive/interfaces/deals.interface';
 import { PipedriveService } from 'src/pipedrive/pipedrive.service';
@@ -28,12 +29,12 @@ export class ManagerController {
   }
 
   @Get('sync')
+  @Cron(CronExpression.EVERY_MINUTE)
   async syncAPIs() {
     try {
       await this.PipedriveToBling();
       return { msg: 'Data has been synchronized' }
     } catch (error) {
-
       return {
         error: 'an error has occurred',
         reason: error
