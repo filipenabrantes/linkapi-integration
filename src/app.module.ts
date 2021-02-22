@@ -1,12 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PipedriveService } from './pipedrive/pipedrive.service';
-import { BlingService } from './bling/bling.service';
-import { ManagerService } from './manager/manager.service';
-import { BlingModule } from './bling/bling.module';
 import { ManagerModule } from './manager/manager.module';
-import { PipedriveModule } from './pipedrive/pipedrive.module';
+import { SharedModule } from './shared/shared.module';
 
 const configService = new ConfigService();
 @Module({
@@ -15,12 +11,11 @@ const configService = new ConfigService();
       isGlobal: true,
       envFilePath: ['.env'],
     }),
-    // MongooseModule.forRoot(configService.get('MONGO_SERVER')),
-    BlingModule,
+    MongooseModule.forRoot(configService.get('MONGO_SERVER')),
     ManagerModule,
-    PipedriveModule,
+    SharedModule
   ],
   controllers: [],
-  providers: [PipedriveService, BlingService, ManagerService],
+  providers: [],
 })
 export class AppModule { }
