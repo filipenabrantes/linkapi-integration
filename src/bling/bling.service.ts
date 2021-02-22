@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { makeRequest } from 'src/manager/make-request';
-import { IDeals } from 'src/pipedrive/interfaces/deals.interface';
-import converter from 'xml-js';
+import { IDeal } from 'src/pipedrive/interfaces/deals.interface';
+import converter from 'jsontoxml';
+import { AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class BlingService {
-  constructor(private readonly configService: ConfigService) { }
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
+  ) { }
 
-  async insertOrder(deal: IDeals) {
-    const order = JSON.stringify({
+  async insertOrder(deal: IDeal) {
+
+    const order = {
       pedido: {
         cliente: {
           nome: deal.name,
@@ -18,21 +22,28 @@ export class BlingService {
           item: {
             codigo: deal.id,
             descricao: deal.title,
-            vlr_unit: parseFloat(deal.value.toString()),
+            vlr_unit: deal.value / 10,
             un: "un",
-            qtde: "10",
+            qtde: "1",
           },
         },
       }
-    });
+    };
 
-    const params = {
-      apikey: this.configService.get('BLING_TOKEN'),
-      xml: converter.json2xml(order)
+    const options: AxiosRequestConfig = {
+      params: {
+        apikey: this.configService.get('BLING_TOKEN'),
+        xml: converter(order)
+      }
     }
-    const res = await makeRequest(`${this.configService.get('BLING_URL')}/pedido/json`, 'POST', params);
-    console.log(res);
 
+    const URL = `${this.configService.get('BLING_URL')}/pedido/json`;
+    const { data: data } = await this.httpService.post(URL, null, options).toPromise();
+
+    if (!data.retorno.erros) {
+      return data.retorno.pedidos[0];
+    }
+    Logger.log(data.retorno.erros[0]);
 
   }
 }

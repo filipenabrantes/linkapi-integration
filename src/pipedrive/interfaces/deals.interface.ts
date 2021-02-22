@@ -1,4 +1,4 @@
-export interface IDeals {
+export interface IDeal {
   id: string;
   title: string;
   value: number;
