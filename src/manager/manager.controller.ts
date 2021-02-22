@@ -14,7 +14,6 @@ export class ManagerController {
       private readonly managerService: ManagerService
     ) { }
 
-  @Get()
   async PipedriveToBling() {
     const deals = await this.pipedriveService.getDeals();
     deals.forEach(async (deal: IDeal) => {
@@ -28,6 +27,20 @@ export class ManagerController {
     return this.managerService.findAll();
   }
 
+  @Get('sync')
+  async syncAPIs() {
+    try {
+      await this.PipedriveToBling();
+      return { msg: 'Data has been synchronized' }
+    } catch (error) {
+
+      return {
+        error: 'an error has occurred',
+        reason: error
+      }
+    }
+  }
+
   async insertDeal({ pedido }: any, deal: IDeal) {
     const newOrder: IOrder = {
       orderId: pedido.idPedido,
@@ -38,5 +51,4 @@ export class ManagerController {
     };
     this.managerService.create(newOrder);
   }
-
 }
